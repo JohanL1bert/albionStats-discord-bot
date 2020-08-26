@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+
 #Customize settings
 bot_prefix = '!'
 client_bot = commands.Bot(command_prefix = bot_prefix)
@@ -29,10 +30,8 @@ def env_check():
 TOKEN, ID_CHANNEL, CHANNEL_NAME = env_check()
 
 
-
-
 #checkers server room
-#TODO: переписать лучше по ид канала
+#TODO: Возможно переписать под множества каналов. Удалить else
 @client_bot.event
 async def on_message(ctx):
     if ctx.channel.id == ID_CHANNEL:
