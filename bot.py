@@ -17,7 +17,8 @@ def env_check():
         if os.path.getsize(".env") != 0:
             TOKEN = os.getenv("DISCORD_TOKEN")
             ID_CHANNEL = int(os.getenv("DISCORD_CHANNEL_ID"))
-            return TOKEN, ID_CHANNEL
+            CHANNEL_NAME = os.getenv("CHANNEL_NAME")
+            return TOKEN, ID_CHANNEL, CHANNEL_NAME
         else:
             print("custom error = File .env is empty")
     else:
@@ -25,13 +26,19 @@ def env_check():
 
 
 # ID CHANNEL AND TOKEN DISCORD
-TOKEN, ID_CHANNEL = env_check()
+TOKEN, ID_CHANNEL, CHANNEL_NAME = env_check()
 
 
-# checkers server room
-def check_id_channel(id_channel):
-    pass
-    
+
+
+#checkers server room
+#TODO: переписать лучше по ид канала
+@client_bot.event
+async def on_message(ctx):
+    if ctx.channel.id == ID_CHANNEL:
+        await client_bot.process_commands(ctx)
+    else: # test Be deleted
+        await client_bot.get_channel(ID_CHANNEL).send("Wrong channel")
 
 
 # Send ready when bot is connect to server
