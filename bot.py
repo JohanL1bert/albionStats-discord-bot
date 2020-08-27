@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-
 #Customize settings
 bot_prefix = '!'
 client_bot = commands.Bot(command_prefix = bot_prefix)
@@ -41,10 +40,11 @@ async def on_message(ctx):
 
 
 # Send ready when bot is connect to server
-#FIXME: Переписать проверку
+#FIXME: Переписать проверку. Возможно лучше по каналам сделать
 @client_bot.event
-async def on_ready():
-    await client_bot.get_channel(ID_CHANNEL).send("Bot is ready")
+async def on_connect():
+    await client_bot.get_channel(ID_CHANNEL).send("Bot is connected to channel")
+
 
 
 # Help settings
@@ -57,20 +57,48 @@ async def help(ctx):
         description = "Description of the commands"
     )
 
-    embed.add_field(name = "add user", value = "This will add user", inline = False)
-    embed.add_field(name = "status bot", value = "Check bot status", inline = False)
-    embed.add_field(name = "status API", value = "Check is albion site is not down", inline = False)
+    embed.add_field(name = "add_player", value = "This will add user", inline = False)
+    embed.add_field(name = "add_guild name", value = "Add guild to track", inline = False)
+    embed.add_field(name = "status_bot", value = "Check bot status", inline = False)
+    embed.add_field(name = "status_API", value = "Check is albion site is not down", inline = False)
 
 
     await client_bot.get_channel(ID_CHANNEL).send(embed = embed)
 
 
+#Commands
+#TODO: Больше команд. Исправить название. Написать функции
+@client_bot.command()
+async def add_player():
+    pass
+
+@client_bot.command()
+async def add_guild():
+    pass
+
+@client_bot.command()
+async def status():
+    pass
+
+@client_bot.command()
+async def albion_status():
+    pass
+
+
+#Save 
+
+
 client_bot.run(TOKEN)
+
+
+#API ALBION
+KB_ALBION_URL = "https://albiononline.com/en/killboard/battles/"
 
 
 
 #TODO: написать чекер канала
 # API ALBION
 # embed доделать
+# можно сделать bot_prefix customize
 
 
