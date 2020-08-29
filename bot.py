@@ -1,5 +1,6 @@
 import os
 import discord
+import sqlite3
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -7,6 +8,22 @@ from dotenv import load_dotenv
 bot_prefix = '!'
 client_bot = commands.Bot(command_prefix = bot_prefix)
 client_bot.remove_command('help')
+
+#check exist db
+#TODO: Bad code. Later maybe full rewrite. Maybe better use another data to save
+def db_exists():
+    db_name = "guild_data.db"
+    if os.path.isfile(db_name):
+        connect_db(db_name)
+    else:
+        file_name = open(db_name, "w+")
+        file_name.close()
+        connect_db(db_name)
+
+def connect_db(db_name):
+    conn = sqlite3.connect(db_name)
+    print(conn)
+
 
 
 # Check is env file is exists and not empty
@@ -24,6 +41,9 @@ def env_check():
     else:
         print("custom error = Env file not found")
 
+
+# FUNC to Check DB exists 
+db_exists
 
 # ID CHANNEL AND TOKEN DISCORD
 TOKEN, ID_CHANNEL, CHANNEL_NAME = env_check()
@@ -90,10 +110,10 @@ async def albion_status():
 
 #Save 
 #TODO: Возможно лучше сделать один файл для всех сейвов
-def save_player_name():
+""" def save_player_name():
     pass
 
-
+ """
 
 #requestest 
 
@@ -109,6 +129,9 @@ KB_ALBION_URL = "https://albiononline.com/en/killboard/battles/"
 # API ALBION
 # embed доделать
 # можно сделать bot_prefix customize
+
+
+
 
 
 
