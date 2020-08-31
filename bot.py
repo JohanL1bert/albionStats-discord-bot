@@ -8,21 +8,43 @@ from dotenv import load_dotenv
 bot_prefix = '!'
 client_bot = commands.Bot(command_prefix = bot_prefix)
 client_bot.remove_command('help')
+db_name = "guild_data.db"
 
 #check exist db
 #TODO: Bad code. Later maybe full rewrite. Maybe better use another data to save
 def db_exists():
-    db_name = "guild_data.db"
     if os.path.isfile(db_name):
         connect_db(db_name)
     else:
         file_name = open(db_name, "w+")
         file_name.close()
-        connect_db(db_name)
+        conn = connect_db(db_name)
+        print(conn)
+        create_default_fields(conn)
+        
+
+
+# Create default field for bd
+def create_default_fields(conn):
+    print("sss")
+    Player_Table = '''CREATE TABLE Player(
+        id INTEGER PRIMARY KEY,
+        name TEXT NON NULL);'''
+    
+    cursos = conn.cursor()
+    print("Succesfulluy connected to SQLITE")
+    cursos.execute(Player_Table)
+    conn.commit()
+    print("Sqlite table created")
+    cursos.close()
+
+    
+   
 
 def connect_db(db_name):
     conn = sqlite3.connect(db_name)
-    print(conn)
+    return conn
+  
 
 
 
@@ -43,7 +65,7 @@ def env_check():
 
 
 # FUNC to Check DB exists 
-db_exists
+db_exists()
 
 # ID CHANNEL AND TOKEN DISCORD
 TOKEN, ID_CHANNEL, CHANNEL_NAME = env_check()
