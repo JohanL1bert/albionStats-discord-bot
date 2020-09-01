@@ -10,8 +10,9 @@ client_bot = commands.Bot(command_prefix = bot_prefix)
 client_bot.remove_command('help')
 db_name = "guild_data.db"
 
+
 #check exist db
-#TODO: Bad code. Later maybe full rewrite. Maybe better use another data to save
+#TODO: Bad code. Later maybe full rewrite. 
 def db_exists():
     if os.path.isfile(db_name):
         connect_db(db_name)
@@ -19,33 +20,35 @@ def db_exists():
         file_name = open(db_name, "w+")
         file_name.close()
         conn = connect_db(db_name)
-        print(conn)
         create_default_fields(conn)
         
 
 
 # Create default field for bd
 def create_default_fields(conn):
-    print("sss")
-    Player_Table = '''CREATE TABLE Player(
-        id INTEGER PRIMARY KEY,
-        name TEXT NON NULL);'''
-    
-    cursos = conn.cursor()
-    print("Succesfulluy connected to SQLITE")
-    cursos.execute(Player_Table)
-    conn.commit()
-    print("Sqlite table created")
-    cursos.close()
+    cur = conn.cursor()
 
+    # Создание таблиц Player и Guilds
+    cur.execute("""CREATE TABLE Players(
+        userid INT PRIMARY KEY,
+        name TEXT);
+    """)
+
+    cur.execute("""CREATE TABLE Guilds(
+        guildid INT PRIMARY KEY,
+        name TEXT);
+    """)
+
+    conn.commit()
+    cur.close()
     
    
 
 def connect_db(db_name):
-    conn = sqlite3.connect(db_name)
-    return conn
-  
+    connection = sqlite3.connect(db_name)
+    return connection 
 
+  
 
 
 # Check is env file is exists and not empty
