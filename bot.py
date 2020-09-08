@@ -1,4 +1,6 @@
 import os
+import asyncio
+import requests
 import discord
 import sqlite3
 from discord.ext import commands
@@ -9,6 +11,9 @@ bot_prefix = '!'
 client_bot = commands.Bot(command_prefix = bot_prefix)
 client_bot.remove_command('help')
 db_name = "guild_data.db"
+
+#API ALBION
+ALBION_URL = "https://albiononline.com/en/killboard/battles/"
 
 
 #check exist db
@@ -43,12 +48,20 @@ def create_default_fields(conn):
     cur.close()
     
    
-
+# Connect to db
 def connect_db(db_name):
     connection = sqlite3.connect(db_name)
-    return connection 
+    return connection
 
   
+# Add data to db. Not working
+def add_values_toBD(player_name, guild_name):
+    conn = connect_db(db_name)
+    cur = conn.cursor()
+    if player_name:
+        cur.execute("INSERT INTO Players(name) values (?)", (player_name))
+    elif guild_name:
+        cur.execute("INSERT INTO Guilds(name) values(?)", (guild_name))
 
 
 # Check is env file is exists and not empty
@@ -89,7 +102,9 @@ async def on_message(ctx):
 @client_bot.event
 async def on_connect():
     start_message = ("```Bot is connected to channel```")
+    await asyncio.sleep(0.2)
     await client_bot.get_channel(ID_CHANNEL).send(start_message)
+
 
 
 
@@ -107,7 +122,7 @@ async def help(ctx):
     embed.add_field(name = "add guild name", value = "Add guild to track", inline = False)
     embed.add_field(name = "remove watch player", value = "Remove track from player", inline= False)
     embed.add_field(name = "remove watch guild", value = "Remove track from guild", inline= False)
-    embed.add_field(name = "status bot", value = "Check bot status", inline = False)
+    embed.add_field(name = "site status", value = "Check bot status", inline = False)
     embed.add_field(name = "status API", value = "Check is albion site is not down", inline = False)
 
     await client_bot.get_channel(ID_CHANNEL).send(embed = embed) # ctx.send(embed = embed)
@@ -116,22 +131,26 @@ async def help(ctx):
 #Commands
 #TODO: Больше команд. Исправить название. Написать функции
 @client_bot.command()
-async def add_player(ctx, name):
-    await ctx.send("Player name - {} is add".format(name))
+async def add_player(ctx, player_name):
+    await ctx.send("Player name - {} is add to track".format(player_name))
 
 
 @client_bot.command()
-async def add_guild():
-    pass
+async def add_guild(ctx, name_guild):
+    await ctx.send("Guild name - {} is add to track".format(name_guild))
 
 @client_bot.command()
 async def status():
     pass
 
-@client_bot.command()
-async def albion_status():
-    pass
 
+@client_bot.command()
+async def site_status(ctx):
+    checkup = requests.get(ALBION_URL)
+    if checkup.ok:
+        await ctx.send("https://albiononline.com/en/home is okay")
+    else:
+        await ctx.send("Something wrong with albion site")
 
 #Save 
 #TODO: Возможно лучше сделать один файл для всех сейвов
@@ -144,9 +163,6 @@ async def albion_status():
 
 client_bot.run(TOKEN)
 
-
-#API ALBION
-KB_ALBION_URL = "https://albiononline.com/en/killboard/battles/"
 
 
 
