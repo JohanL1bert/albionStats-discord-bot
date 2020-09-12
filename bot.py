@@ -122,10 +122,13 @@ async def help(ctx):
     embed.add_field(name = "add guild name", value = "Add guild to track", inline = False)
     embed.add_field(name = "remove watch player", value = "Remove track from player", inline= False)
     embed.add_field(name = "remove watch guild", value = "Remove track from guild", inline= False)
+    embed.add_field(name = "Check player is add", value = "Check is player already in database", inline = False)
+    embed.add_field(name = "Check guild is add", value = "Check is guild already in database", inline = False)
     embed.add_field(name = "site status", value = "Check bot status", inline = False)
     embed.add_field(name = "status API", value = "Check is albion site is not down", inline = False)
 
-    await client_bot.get_channel(ID_CHANNEL).send(embed = embed) # ctx.send(embed = embed)
+
+    await ctx.send(embed = embed) # ctx.send(embed = embed) #client_bot.get_channel(ID_CHANNEL)
 
 
 #Commands
@@ -133,17 +136,20 @@ async def help(ctx):
 @client_bot.command()
 async def add_player(ctx, player_name):
     await ctx.send("Player name - {} is add to track".format(player_name))
+    return print(player_name)
+
 
 
 @client_bot.command()
 async def add_guild(ctx, name_guild):
     await ctx.send("Guild name - {} is add to track".format(name_guild))
 
+
 @client_bot.command()
 async def status():
     pass
 
-
+#TODO: try to rewrite for one func
 @client_bot.command()
 async def site_status(ctx):
     checkup = requests.get(ALBION_URL)
@@ -152,14 +158,39 @@ async def site_status(ctx):
     else:
         await ctx.send("Something wrong with albion site")
 
+@client_bot.command()
+async def ch_player(ctx, PL_name):
+    conn = connect_db(db_name)
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM Players WHERE name = ?", (PL_name,))
+    if cur.fetchone():
+        await ctx.send("Player name {} is exists in database".format(PL_name))
+    else:
+        await ctx.send("Not found in database")
+    
+    
+
+@client_bot.command()
+async def ch_guild(ctx, G_bane):
+    conn = connect_db(db_name)
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM Players WHERE name = ?", (all,))
+    if cur.fetchone():
+        await ctx.send("Guilds {} is exists in database".format(all))
+    else:
+        await ctx.send("Not found in database")
+
 #Save 
 #TODO: Возможно лучше сделать один файл для всех сейвов
 """ def save_player_name():
     pass
-
  """
 
 #requestest 
+#settings async
+#VERY BAD
+""" player_name = add_player()
+print(player_name) """
 
 client_bot.run(TOKEN)
 
