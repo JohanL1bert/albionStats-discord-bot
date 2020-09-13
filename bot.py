@@ -12,11 +12,20 @@ client_bot = commands.Bot(command_prefix = bot_prefix)
 client_bot.remove_command('help')
 db_name = "guild_data.db"
 
+
+#LIST to save track player and guild
+player_track_list = list(None)
+guild_track_list = list(None)
+
+def create_file_list():
+    pass
+
+
 #API ALBION
 ALBION_URL = "https://albiononline.com/en/killboard/battles/"
 
 
-#check exist db
+#check exist db if not create
 #TODO: Bad code. Later maybe full rewrite. 
 def db_exists():
     if os.path.isfile(db_name):
@@ -26,10 +35,11 @@ def db_exists():
         file_name.close()
         conn = connect_db(db_name)
         create_default_fields(conn)
-        
 
 
-# Create default field for bd
+
+#TODO: Delete field id or create one table
+# Create default field for database
 def create_default_fields(conn):
     cur = conn.cursor()
 
@@ -53,7 +63,8 @@ def connect_db(db_name):
     connection = sqlite3.connect(db_name)
     return connection
 
-  
+
+
 # Add data to db. Not working
 def add_values_toBD(player_name, guild_name):
     conn = connect_db(db_name)
@@ -62,6 +73,27 @@ def add_values_toBD(player_name, guild_name):
         cur.execute("INSERT INTO Players(name) values (?)", (player_name))
     elif guild_name:
         cur.execute("INSERT INTO Guilds(name) values(?)", (guild_name))
+    cur.close()
+
+   
+
+def ch_exists_value(iter_variable, function_name):
+    conn = connect_db(db_name)
+    cur = conn.cursor()
+    if function_name == "add_player":
+        cur.execute("SELECT name FROM Players WHERE name = ?", (iter_variable,))
+        if cur.fetchone():
+            return None
+        else:
+            return iter_variable
+    elif function_name == "add_guild":
+        cur.execute("SELECT name FROM Guilds WHERE name = ?", (iter_variable,))
+        if cur.fetchone():
+            return None
+        else:
+            return iter_variable
+    cur.close()
+
 
 
 # Check is env file is exists and not empty
@@ -78,6 +110,7 @@ def env_check():
             print("custom error = File .env is empty")
     else:
         print("custom error = Env file not found")
+
 
 
 # FUNC to Check DB exists 
@@ -97,6 +130,7 @@ async def on_message(ctx):
         await client_bot.get_channel(ID_CHANNEL).send("Wrong channel")
 
 
+
 # Send ready when bot is connect to server
 #FIXME: Переписать проверку. Возможно лучше по каналам сделать
 @client_bot.event
@@ -104,7 +138,6 @@ async def on_connect():
     start_message = ("```Bot is connected to channel```")
     await asyncio.sleep(0.2)
     await client_bot.get_channel(ID_CHANNEL).send(start_message)
-
 
 
 
@@ -135,19 +168,38 @@ async def help(ctx):
 #TODO: Больше команд. Исправить название. Написать функции
 @client_bot.command()
 async def add_player(ctx, player_name):
-    await ctx.send("Player name - {} is add to track".format(player_name))
-    return print(player_name)
+    func_name = ("add_player")
+    player_status = ch_exists_value(player_name, func_name)
+    if player_status == None:
+        await ctx.send("Player name - {} is already in database".format(player_name))
+    else:
+        await ctx.send("Player name - {} is add to database and start tracking".format(player_status))
+
 
 
 
 @client_bot.command()
 async def add_guild(ctx, name_guild):
-    await ctx.send("Guild name - {} is add to track".format(name_guild))
+    func_name = ("add_guild")
+    guild_status = ch_exists_value(name_guild, func_name)
+    if guild_status == None:
+        await ctx.send("Guild - {} is already in database".format(name_guild))
+    else:
+        await ctx.send("Guild name - {} is add to database and start tracking".format(guild_status))
+
 
 
 @client_bot.command()
-async def status():
+async def track_player():
     pass
+
+
+
+@client_bot.command()
+async def track_guild():
+    pass
+
+
 
 #TODO: try to rewrite for one func
 @client_bot.command()
@@ -158,6 +210,8 @@ async def site_status(ctx):
     else:
         await ctx.send("Something wrong with albion site")
 
+
+
 @client_bot.command()
 async def ch_player(ctx, PL_name):
     conn = connect_db(db_name)
@@ -167,18 +221,23 @@ async def ch_player(ctx, PL_name):
         await ctx.send("Player name {} is exists in database".format(PL_name))
     else:
         await ctx.send("Not found in database")
+    cur.close()
+
     
     
 
 @client_bot.command()
-async def ch_guild(ctx, G_bane):
+async def ch_guild(ctx, G_name):
     conn = connect_db(db_name)
     cur = conn.cursor()
-    cur.execute("SELECT name FROM Players WHERE name = ?", (all,))
+    cur.execute("SELECT name FROM Players WHERE name = ?", (G_name,))
     if cur.fetchone():
-        await ctx.send("Guilds {} is exists in database".format(all))
+        await ctx.send("Guilds {} is exists in database".format(G_name))
     else:
         await ctx.send("Not found in database")
+    cur.close()
+
+
 
 #Save 
 #TODO: Возможно лучше сделать один файл для всех сейвов
@@ -202,7 +261,10 @@ client_bot.run(TOKEN)
 # embed доделать
 # можно сделать bot_prefix customize
 
-
+#Добавляешь value
+# Оно проверяет сущесвует ли в БД
+# Если существует, то вовращает результат, что существует
+# Если нет, то добавляет
 
 
 
